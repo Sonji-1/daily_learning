@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import requests
 import schedule
 import time
@@ -6,7 +8,7 @@ NOTION_API_KEY = os.getenv("NOTION_API_KEY")
 DATABASE_ID = "19fd9a3d0f1c80ccb5e0e22df67d39ce"
 
 def add_learning_content():
-    content = "GPT¿¡°Ô ¹ŞÀº ÇĞ½À ÄÜÅÙÃ÷"
+    content = "GPTì—ê²Œ ë°›ì€ í•™ìŠµ ì½˜í…ì¸ "
     url = f"https://api.notion.com/v1/pages"
     headers = {
         "Authorization": f"Bearer {NOTION_API_KEY}",
@@ -22,11 +24,11 @@ def add_learning_content():
     }
     requests.post(url, json=data, headers=headers)
 
-# ¸ÅÀÏ ¾ÆÄ§ 8½Ã¿¡ ½ÇÇà
+# ë§¤ì¼ ì•„ì¹¨ 8ì‹œì— ì‹¤í–‰
 schedule.every().day.at("08:00").do(add_learning_content)
 
-# Å×½ºÆ® ÄÚµå
-add_to_notion("¿À´ÃÀÇ ÇĞ½À³»¿ë ÀÚµ¿ ±â·Ï")
+# í…ŒìŠ¤íŠ¸ ì½”ë“œ
+add_to_notion("ì˜¤ëŠ˜ì˜ í•™ìŠµë‚´ìš© ìë™ ê¸°ë¡")
 
 while True:
     schedule.run_pending()
