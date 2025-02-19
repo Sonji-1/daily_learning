@@ -36,7 +36,7 @@ def send_discord_alert(message):
     requests.post(DISCORD_WEBHOOK_URL, json=data)
 
 def load_previous_count():
-    """이전 저장된 데이터 개수를 로드"""
+    """이전 저장된 데이터 개수를 로드 (없을 경우 0 반환)"""
     if os.path.exists(STATE_FILE):
         try:
             with open(STATE_FILE, "r") as f:
@@ -46,7 +46,10 @@ def load_previous_count():
         except Exception as e:
             print(f"❌ JSON 파일 읽기 오류 발생: {e}")
             return 0
-    return 0
+    else:
+        print("⚠️ STATE_FILE이 없어서 새로 생성합니다.")
+        save_current_count(0)  # 기본값 0으로 새 파일 생성
+        return 0
 
 def save_current_count(count):
     """현재 데이터 개수를 저장"""
