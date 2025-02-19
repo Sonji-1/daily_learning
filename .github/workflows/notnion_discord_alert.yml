@@ -12,7 +12,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Load Notion State (Artifacts)  # 이전 실행에서 저장된 상태 파일 다운로드
+      - name: Load Notion State from Cache
+        uses: actions/cache@v4
+        with:
+          path: notion_count_state.json  # 캐시할 JSON 파일 경로
+          key: notion-state-${{ github.run_id }}  # 실행별 고유 키 설정
+          restore-keys: |
+            notion-state-
+            
+      - name: Load Notion State (Artifacts)
         continue-on-error: true
         uses: actions/download-artifact@v4
         with:
@@ -34,8 +42,8 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python note_to_discord.py
 
-      - name: Save Notion State (Artifacts)  # 실행 후 상태 파일 저장
-        if: always()
+      - name: Save Notion State (Artifacts)
+        if: always()  # 실행이 실패해도 항상 실행
         uses: actions/upload-artifact@v4
         with:
           name: notion-state
