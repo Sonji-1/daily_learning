@@ -1,6 +1,7 @@
 import os
 import requests
 import json
+import traceback
 
 # 환경 변수 설정
 NOTION_API_KEY = os.getenv("NOTION_API_KEY")
@@ -22,17 +23,12 @@ def get_notion_entry_count():
     response = requests.post(url, headers=headers)
     data = response.json()
 
-    # 📌 API 응답 확인 (디버깅용)
-    print("🔍 Notion API 응답 데이터:")
-    print(json.dumps(data, indent=4))
-
-    # 오류 발생 여부 확인
     if "error" in data:
         print("❌ API 오류 발생:", data["error"])
         return 0
 
     count = len(data.get("results", []))
-    print(f"📌 현재 Notion 데이터 개수: {count}")  # ✅ 디버깅용 출력
+    print(f"📌 현재 Notion 데이터 개수: {count}")
     return count
 
 def send_discord_alert(message):
@@ -42,22 +38,29 @@ def send_discord_alert(message):
 
 def load_previous_count():
     """이전 저장된 데이터 개수를 로드"""
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, "r") as f:
-            return json.load(f).get("count", 0)
-    return 0
+    try:
+        if os.path.exists(STATE_FILE):
+            with open(STATE_FILE, "r") as f:
+                return json.load(f).get("count", 0)
+        return 0
+    except Exception as e:
+        print("❌ JSON 파일 읽기 오류 발생:", str(e))
+        return 0  # 기본값 반환
 
 def save_current_count(count):
     """현재 데이터 개수를 저장"""
-    with open(STATE_FILE, "w") as f:
-        json.dump({"count": count}, f, indent=4)
+    try:
+        with open(STATE_FILE, "w") as f:
+            json.dump({"count": count}, f, indent=4)
+    except Exception as e:
+        print("❌ JSON 파일 저장 오류 발생:", str(e))
 
 def check_for_count_changes():
     """Notion Database의 항목 개수 변경 감지"""
     previous_count = load_previous_count()
     current_count = get_notion_entry_count()
 
-    print(f"🔍 이전 개수: {previous_count}, 현재 개수: {current_count}")  # ✅ 디버깅용 출력
+    print(f"🔍 이전 개수: {previous_count}, 현재 개수: {current_count}")
 
     if current_count != previous_count:
         if current_count > previous_count:
@@ -73,5 +76,10 @@ def check_for_count_changes():
     else:
         print("🔄 데이터 개수 변경 없음.")
 
-# 실행
-check_for_count_changes()
+# 실행 (오류 발생 시 traceback 출력)
+try:
+    check_for_count_changes()
+except Exception as e:
+    print("❌ 오류 발생:", str(e))
+    print(traceback.format_exc())  # 오류 상세 출력
+    exit(1)  # GitHub Actions에서 오류 감지 가능하도록 설정
