@@ -1,0 +1,24 @@
+name: Daily Learning Update
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # 매일 오전 8시 실행
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: pip install requests schedule
+
+      - name: Run script
+        run: python daily_learning.py
