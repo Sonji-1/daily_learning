@@ -2,14 +2,16 @@ import os
 import requests
 import json
 
+# 환경 변수 설정
 NOTION_API_KEY = os.getenv("NOTION_API_KEY")
 DATABASE_ID = os.getenv("NOTION_DATABASE_ID")
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
-STATE_FILE = "notion_state.json"
+# 상태 저장 파일
+STATE_FILE = "notion_count_state.json"
 
-def get_latest_notion_entries():
-    """Notion API에서 모든 학습 데이터를 가져옴"""
+def get_notion_entry_count():
+    """현재 Notion Database의 항목 개수를 가져옴"""
     url = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
     headers = {
         "Authorization": f"Bearer {NOTION_API_KEY}",
@@ -17,75 +19,50 @@ def get_latest_notion_entries():
         "Notion-Version": "2022-06-28"
     }
 
-    results = []
-    start_cursor = None
-
-    while True:
-        params = {"start_cursor": start_cursor} if start_cursor else {}
-        response = requests.post(url, headers=headers, json=params)
-        data = response.json()
-
-        if "results" in data:
-            results.extend(data["results"])
-
-        # 더 이상 가져올 데이터가 없으면 종료
-        if "next_cursor" not in data or not data["next_cursor"]:
-            break
-
-        start_cursor = data["next_cursor"]
-
-    return results
+    response = requests.post(url, headers=headers)
+    data = response.json()
+    
+    count = len(data.get("results", []))
+    print(f"📌 현재 Notion 데이터 개수: {count}")  # ✅ 디버깅용 출력
+    return count
 
 def send_discord_alert(message):
-    """Discord 웹훅으로 알림 전송"""
+    """Discord 웹훅을 통해 알림 전송"""
     data = {"content": message}
     requests.post(DISCORD_WEBHOOK_URL, json=data)
 
-def load_previous_state():
-    """이전 상태를 JSON 파일에서 로드"""
+def load_previous_count():
+    """이전 저장된 데이터 개수를 로드"""
     if os.path.exists(STATE_FILE):
         with open(STATE_FILE, "r") as f:
-            return json.load(f)
-    return []
+            return json.load(f).get("count", 0)
+    return 0
 
-def save_current_state(data):
-    """현재 상태를 JSON 파일에 저장"""
+def save_current_count(count):
+    """현재 데이터 개수를 저장"""
     with open(STATE_FILE, "w") as f:
-        json.dump(data, f, indent=4)
+        json.dump({"count": count}, f, indent=4)
 
-def check_for_updates():
-    """Notion Database의 변경 사항을 감지하여 Discord 알림 전송"""
-    previous_entries = load_previous_state()
-    latest_entries = get_latest_notion_entries()
+def check_for_count_changes():
+    """Notion Database의 항목 개수 변경 감지"""
+    previous_count = load_previous_count()
+    current_count = get_notion_entry_count()
 
-    # 기존 데이터와 최신 데이터를 비교하기 위한 Dictionary 변환
-    previous_data = {entry["id"]: entry["properties"]["Title"]["title"][0]["text"]["content"] for entry in previous_entries}
-    latest_data = {entry["id"]: entry["properties"]["Title"]["title"][0]["text"]["content"] for entry in latest_entries}
+    print(f"🔍 이전 개수: {previous_count}, 현재 개수: {current_count}")  # ✅ 디버깅용 출력
 
-    # 변경 사항 감지
-    new_entries = [entry for entry in latest_entries if entry["id"] not in previous_data]
-    updated_entries = [entry for entry in latest_entries if entry["id"] in previous_data and previous_data[entry["id"]] != latest_data[entry["id"]]]
-
-    if new_entries or updated_entries:
-        message = "✅ **Notion Database 업데이트 감지!**\n"
-
-        if new_entries:
-            message += f"\n📌 **새로운 학습 콘텐츠 ({len(new_entries)}개 추가됨)**:\n"
-            for entry in new_entries:
-                title = entry["properties"]["Title"]["title"][0]["text"]["content"]
-                message += f"- 🆕 {title}\n"
-
-        if updated_entries:
-            message += f"\n✏️ **수정된 학습 콘텐츠 ({len(updated_entries)}개 변경됨)**:\n"
-            for entry in updated_entries:
-                title = entry["properties"]["Title"]["title"][0]["text"]["content"]
-                message += f"- 🔄 {title}\n"
+    if current_count != previous_count:
+        if current_count > previous_count:
+            diff = current_count - previous_count
+            message = f"✅ Notion Database에 {diff}개 항목이 추가되었습니다! 📈"
+        else:
+            diff = previous_count - current_count
+            message = f"❌ Notion Database에서 {diff}개 항목이 삭제되었습니다! 📉"
 
         send_discord_alert(message)
-        save_current_state(latest_entries)
+        save_current_count(current_count)
         print("📢 Discord 알림 전송 완료!")
     else:
-        print("🔄 변경 사항 없음.")
+        print("🔄 데이터 개수 변경 없음.")
 
 # 실행
-check_for_updates()
+check_for_count_changes()
