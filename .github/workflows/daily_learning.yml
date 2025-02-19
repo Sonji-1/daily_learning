@@ -26,4 +26,4 @@ jobs:
         run: pip install requests schedule
 
       - name: Run script
-        run: python daily_learning.py
+        run: python daily_learning_utf8.py
