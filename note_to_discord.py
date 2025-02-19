@@ -1,7 +1,6 @@
 import os
 import requests
 import json
-import traceback
 
 # 환경 변수 설정
 NOTION_API_KEY = os.getenv("NOTION_API_KEY")
@@ -38,22 +37,25 @@ def send_discord_alert(message):
 
 def load_previous_count():
     """이전 저장된 데이터 개수를 로드"""
-    try:
-        if os.path.exists(STATE_FILE):
+    if os.path.exists(STATE_FILE):
+        try:
             with open(STATE_FILE, "r") as f:
-                return json.load(f).get("count", 0)
-        return 0
-    except Exception as e:
-        print("❌ JSON 파일 읽기 오류 발생:", str(e))
-        return 0  # 기본값 반환
+                data = json.load(f)
+                print(f"📌 이전 개수 로드 성공: {data.get('count', 0)}")
+                return data.get("count", 0)
+        except Exception as e:
+            print(f"❌ JSON 파일 읽기 오류 발생: {e}")
+            return 0
+    return 0
 
 def save_current_count(count):
     """현재 데이터 개수를 저장"""
     try:
         with open(STATE_FILE, "w") as f:
             json.dump({"count": count}, f, indent=4)
+        print(f"📌 새로운 개수 저장 완료: {count}")
     except Exception as e:
-        print("❌ JSON 파일 저장 오류 발생:", str(e))
+        print(f"❌ JSON 파일 저장 오류 발생: {e}")
 
 def check_for_count_changes():
     """Notion Database의 항목 개수 변경 감지"""
@@ -76,10 +78,5 @@ def check_for_count_changes():
     else:
         print("🔄 데이터 개수 변경 없음.")
 
-# 실행 (오류 발생 시 traceback 출력)
-try:
-    check_for_count_changes()
-except Exception as e:
-    print("❌ 오류 발생:", str(e))
-    print(traceback.format_exc())  # 오류 상세 출력
-    exit(1)  # GitHub Actions에서 오류 감지 가능하도록 설정
+# 실행
+check_for_count_changes()
