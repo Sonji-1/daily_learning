@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import requests
 import schedule
@@ -33,3 +33,4 @@ add_to_notion("today's learning data automatic recording")
 while True:
     schedule.run_pending()
     time.sleep(60)
+
