@@ -23,6 +23,6 @@ jobs:
       - name: Check Notion Updates and Send Discord Alert
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-          DATABASE_ID: ${{ secrets.DATABASE_ID }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python note_to_discord.py
