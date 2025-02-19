@@ -1,5 +1,8 @@
 name: Daily Learning Update
 
+env:
+  PYTHONIOENCODING: utf-8
+
 on:
   schedule:
     - cron: '0 8 * * *'  # running time
