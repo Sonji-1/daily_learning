@@ -38,17 +38,21 @@ def load_previous_state():
     if os.path.exists(STATE_FILE):
         try:
             with open(STATE_FILE, "r") as f:
-                return json.load(f)
+                data = json.load(f)
+                return {
+                    "ids": data.get("ids", []),  # 기존에 "ids"가 없으면 빈 리스트 반환
+                    "count": data.get("count", 0)  # 기존에 "count"가 없으면 0 반환
+                }
         except Exception as e:
             print(f"❌ JSON 파일 읽기 오류 발생: {e}")
-            return {"ids": [], "count": 0}
-    return {"ids": [], "count": 0}
+            return {"ids": [], "count": 0}  # 오류 발생 시 기본값 반환
+    return {"ids": [], "count": 0}  # 파일이 없을 경우 기본값 반환
 
 def save_current_state(entry_ids, count):
     """현재 데이터 상태 저장"""
     try:
         with open(STATE_FILE, "w") as f:
-            json.dump({"ids": entry_ids, "count": count}, f, indent=4)
+            json.dump({"ids": list(entry_ids), "count": count}, f, indent=4)
         print(f"📌 새로운 상태 저장 완료: {count} 개 항목")
     except Exception as e:
         print(f"❌ JSON 파일 저장 오류 발생: {e}")
@@ -56,7 +60,7 @@ def save_current_state(entry_ids, count):
 def check_for_new_entries():
     """Notion Database의 새 항목을 감지하고 Discord로 Title만 전송"""
     previous_state = load_previous_state()
-    previous_ids = set(previous_state["ids"])
+    previous_ids = set(previous_state["ids"])  # KeyError 방지
 
     current_entries = get_notion_entries()
     current_ids = {entry["id"] for entry in current_entries}
