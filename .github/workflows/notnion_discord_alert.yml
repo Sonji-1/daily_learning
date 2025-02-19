@@ -17,6 +17,7 @@ jobs:
         with:
           name: notion-state
           path: .
+          if-no-files-found: ignore
 
       - name: Setup Python
         uses: actions/setup-python@v3
@@ -34,6 +35,7 @@ jobs:
         run: python note_to_discord.py
 
       - name: Save Notion State (Artifacts)  # 실행 후 상태 파일 저장
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: notion-state
