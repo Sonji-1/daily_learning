@@ -3,6 +3,7 @@ name: Daily Learning Update
 env:
   PYTHONUTF8: 1
   PYTHONIOENCODING: utf-8
+  NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
 
 on:
   schedule:
