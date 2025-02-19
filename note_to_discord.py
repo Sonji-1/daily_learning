@@ -21,7 +21,16 @@ def get_notion_entry_count():
 
     response = requests.post(url, headers=headers)
     data = response.json()
-    
+
+    # 📌 API 응답 확인 (디버깅용)
+    print("🔍 Notion API 응답 데이터:")
+    print(json.dumps(data, indent=4))
+
+    # 오류 발생 여부 확인
+    if "error" in data:
+        print("❌ API 오류 발생:", data["error"])
+        return 0
+
     count = len(data.get("results", []))
     print(f"📌 현재 Notion 데이터 개수: {count}")  # ✅ 디버깅용 출력
     return count
