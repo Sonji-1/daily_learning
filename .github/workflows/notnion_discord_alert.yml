@@ -2,8 +2,8 @@ name: Notion Discord Alert
 
 on:
   schedule:
-    - cron: '5 1 * * *'  # 매일 오전 10:05 (KST) = 01:05 (UTC)
-  workflow_dispatch:  # 수동 실행 가능
+    - cron: '5 1 * * *'  # every AM 10:05 (KST) = 01:05 (UTC)
+  workflow_dispatch:  # turn on manually if needed
 
 jobs:
   check-notion-updates:

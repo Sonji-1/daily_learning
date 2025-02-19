@@ -2,9 +2,9 @@ import os
 import requests
 import json
 
-NOTION_API_KEY = "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"
-DATABASE_ID = "19fd9a3d0f1c80ccb5e0e22df67d39ce"
-DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1341794962928566403/tSDDyYMMZ618gqO4GzfhgyUlszctwv33MucRnOjMiyuF-LWnMWZ4_4FGUgCfGAzgT5mv"
+NOTION_API_KEY = os.getenv("NOTION_API_KEY")
+DATABASE_ID = os.getenv("NOTION_DATABASE_ID")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 STATE_FILE = "notion_state.json"
 
