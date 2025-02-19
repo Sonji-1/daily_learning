@@ -2,7 +2,8 @@ name: Daily Learning Update
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # ë§¤ì¼ ì˜¤ì „ 8ì‹œ ì‹¤í–‰
+    - cron: '0 8 * * *'  # ¸ÅÀÏ¿ÀÀü 8½Ã ½ÇÇà
+  workflow_dispatch:
 
 jobs:
   run-script:
