@@ -2,7 +2,7 @@ name: Daily Learning Update
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # 매일오전 8시 실행
+    - cron: '0 8 * * *'  # running time
   workflow_dispatch:
 
 jobs:
