@@ -3,6 +3,11 @@
 import requests
 import schedule
 import time
+import sys
+import io
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 NOTION_API_KEY = os.getenv("NOTION_API_KEY")
 DATABASE_ID = "19fd9a3d0f1c80ccb5e0e22df67d39ce"
