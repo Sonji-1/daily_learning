@@ -4,10 +4,11 @@ env:
   PYTHONUTF8: 1
   PYTHONIOENCODING: utf-8
   NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # running time
+    - cron: '0 10 * * *'  # running time
   workflow_dispatch:
 
 jobs:
@@ -27,4 +28,4 @@ jobs:
         run: pip install requests schedule
 
       - name: Run script
-        run: python debug_once.py
+        run: python daily_learning.py
