@@ -12,6 +12,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Load Notion State (Artifacts)  # 이전 실행에서 저장된 상태 파일 다운로드
+        uses: actions/download-artifact@v3
+        with:
+          name: notion-state
+          path: .
+
       - name: Setup Python
         uses: actions/setup-python@v3
         with:
@@ -26,3 +32,9 @@ jobs:
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: python note_to_discord.py
+
+      - name: Save Notion State (Artifacts)  # 실행 후 상태 파일 저장
+        uses: actions/upload-artifact@v3
+        with:
+          name: notion-state
+          path: notion_count_state.json
