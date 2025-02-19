@@ -10,8 +10,8 @@ DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 # 상태 저장 파일
 STATE_FILE = "notion_count_state.json"
 
-def get_notion_entry_count():
-    """현재 Notion Database의 항목 개수를 가져옴"""
+def get_notion_entries():
+    """현재 Notion Database의 모든 항목을 가져옴"""
     url = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
     headers = {
         "Authorization": f"Bearer {NOTION_API_KEY}",
@@ -24,62 +24,56 @@ def get_notion_entry_count():
 
     if "error" in data:
         print("❌ API 오류 발생:", data["error"])
-        return 0
+        return []
 
-    count = len(data.get("results", []))
-    print(f"📌 현재 Notion 데이터 개수: {count}")
-    return count
+    return data.get("results", [])
 
 def send_discord_alert(message):
     """Discord 웹훅을 통해 알림 전송"""
     data = {"content": message}
     requests.post(DISCORD_WEBHOOK_URL, json=data)
 
-def load_previous_count():
-    """이전 저장된 데이터 개수를 로드 (없을 경우 0 반환)"""
+def load_previous_state():
+    """이전 저장된 데이터 상태 로드 (없으면 기본값 반환)"""
     if os.path.exists(STATE_FILE):
         try:
             with open(STATE_FILE, "r") as f:
-                data = json.load(f)
-                print(f"📌 이전 개수 로드 성공: {data.get('count', 0)}")
-                return data.get("count", 0)
+                return json.load(f)
         except Exception as e:
             print(f"❌ JSON 파일 읽기 오류 발생: {e}")
-            return 0
-    else:
-        print("⚠️ STATE_FILE이 없어서 새로 생성합니다.")
-        save_current_count(0)  # 기본값 0으로 새 파일 생성
-        return 0
+            return {"ids": [], "count": 0}
+    return {"ids": [], "count": 0}
 
-def save_current_count(count):
-    """현재 데이터 개수를 저장"""
+def save_current_state(entry_ids, count):
+    """현재 데이터 상태 저장"""
     try:
         with open(STATE_FILE, "w") as f:
-            json.dump({"count": count}, f, indent=4)
-        print(f"📌 새로운 개수 저장 완료: {count}")
+            json.dump({"ids": entry_ids, "count": count}, f, indent=4)
+        print(f"📌 새로운 상태 저장 완료: {count} 개 항목")
     except Exception as e:
         print(f"❌ JSON 파일 저장 오류 발생: {e}")
 
-def check_for_count_changes():
-    """Notion Database의 항목 개수 변경 감지"""
-    previous_count = load_previous_count()
-    current_count = get_notion_entry_count()
+def check_for_new_entries():
+    """Notion Database의 새 항목을 감지하고 Discord로 Title만 전송"""
+    previous_state = load_previous_state()
+    previous_ids = set(previous_state["ids"])
 
-    print(f"🔍 이전 개수: {previous_count}, 현재 개수: {current_count}")
+    current_entries = get_notion_entries()
+    current_ids = {entry["id"] for entry in current_entries}
 
-    if current_count != previous_count:
-        if current_count > previous_count:
-            diff = current_count - previous_count
-            message = f"✅ Notion Database에 {diff}개 항목이 추가되었습니다! 📈"
-        else:
-            diff = previous_count - current_count
-            message = f"❌ Notion Database에서 {diff}개 항목이 삭제되었습니다! 📉"
+    new_entries = [entry for entry in current_entries if entry["id"] not in previous_ids]
+
+    if new_entries:
+        message = f"✅ 새로운 학습 콘텐츠 {len(new_entries)}개가 추가되었습니다!\n"
+        for entry in new_entries:
+            title = entry["properties"]["Title"]["title"][0]["text"]["content"]
+            message += f"- {title}\n"
 
         send_discord_alert(message)
-        save_current_count(current_count)
+        save_current_state(list(current_ids), len(current_ids))
         print("📢 Discord 알림 전송 완료!")
     else:
-        print("🔄 데이터 개수 변경 없음.")
+        print("🔄 새로운 항목 없음.")
 
 # 실행
-check_for_count_changes()
+check_for_new_entries()
