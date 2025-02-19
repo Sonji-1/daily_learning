@@ -8,7 +8,7 @@ env:
 
 on:
   schedule:
-    - cron: '0 10 * * *'  # running time
+    - cron: '0 1 * * *'  # running time
   workflow_dispatch:
 
 jobs:
@@ -26,6 +26,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install requests schedule
+
+      - name: Install OpenAI modules
+        run: pip install openai requests python-dotenv
 
       - name: Run script
         run: python daily_learning.py
