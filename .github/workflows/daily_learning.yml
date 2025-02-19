@@ -5,6 +5,7 @@ env:
   PYTHONIOENCODING: utf-8
   NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
 
 on:
   schedule:
