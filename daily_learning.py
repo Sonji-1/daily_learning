@@ -21,7 +21,7 @@ categories = {
     "Listening": "Please recommend a short TED lecture or a link to BBC Learning English to improve my English listening skills",
     "Grammar": "Please choose one topic from English grammar and recommend one link that is good for studying it",
     "Coding": "Can you recommend me a medium level coding problem that is good to solve with C++ from Leetcode or Programmers",
-    "Computer System": "Please recommend one keyword related to the computer system that I can look up and study today"
+    "Computer System": "Please recommend one basic computer system knowledge keyword that I can look up and study today"
 }
 
 # GPT를 이용해 학습용 링크를 가져온 후 Notion에 저장
