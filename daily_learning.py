@@ -20,7 +20,7 @@ categories = {
     "Writing": "Please recommend one easy topic to write down to improve my English writing skills",
     "Listening": "Please recommend a short TED lecture or a link to BBC Learning English to improve my English listening skills",
     "Grammar": "Please choose one topic from English grammar and recommend one link that is good for studying it",
-    "Coding": "Can you recommend me a medium level coding problem that is good to solve with C++ from Leetcode or Programmers",
+    "Coding": "Can you recommend me a medium level coding problem that is good to solve with C++ from Leetcode or Programmers. Just give me an introduction, link. Don't write an explanation.",
     "Computer System": "Please recommend one basic computer system knowledge keyword that I can look up and study today"
 }
 
